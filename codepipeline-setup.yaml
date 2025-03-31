@@ -111,7 +111,7 @@ Resources:
   ArtifactBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${ApplicationName}-${TagEnvironment}-artifacts
+      # Removed the explicit BucketName to let AWS generate a unique name
       VersioningConfiguration:
         Status: Enabled
       PublicAccessBlockConfiguration:
@@ -128,6 +128,7 @@ Resources:
   # CodePipeline
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
+    DependsOn: ArtifactBucket
     Properties:
       Name: !Sub ${ApplicationName}-${TagEnvironment}-pipeline
       RoleArn: !GetAtt CodePipelineServiceRole.Arn
@@ -181,3 +182,7 @@ Outputs:
   CodePipelineName:
     Description: Name of the CodePipeline
     Value: !Ref CodePipeline
+    
+  ArtifactBucketName:
+    Description: Name of the S3 bucket for pipeline artifacts
+    Value: !Ref ArtifactBucket
