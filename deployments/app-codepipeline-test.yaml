@@ -3,8 +3,8 @@ parameters:
   ApplicationName: 'demo-app'
   ApplicationUser: 'demo-user'
   TagEnvironment: 'dev'
-  GitHubConnectionArn: 'arn:aws:codestar-connections:region:account-id:connection/connection-id'
+  GitHubConnectionArn: 'arn:aws:codeconnections:ap-south-1:794038256512:connection/ae2e7cd6-d11d-4d4a-927c-c143b999fef7'
   GitHubRepo: 'girish-habile/demo-app'
   GitHubBranch: 'main'
-  InstanceId: 't2.micro'
+  InstanceId: 'i-0d743efb4bd0e80c0'
 tags: {}
