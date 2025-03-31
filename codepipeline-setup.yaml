@@ -162,11 +162,6 @@ Resources:
               Configuration:
                 ApplicationName: !Ref CodeDeployApplication
                 DeploymentGroupName: !Ref CodeDeployDeploymentGroup
-                EnvironmentVariables: !Sub |
-                  {
-                    "APPLICATION_NAME": "${ApplicationName}",
-                    "APPLICATION_USER": "${ApplicationUser}"
-                  }
               InputArtifacts:
                 - Name: SourceCode
 
