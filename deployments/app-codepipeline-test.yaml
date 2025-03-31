@@ -3,7 +3,7 @@ parameters:
   ApplicationName: 'demo-app'
   ApplicationUser: 'demo-user'
   TagEnvironment: 'dev'
-  GitHubConnectionArn: 'arn:aws:codeconnections:ap-south-1:794038256512:connection/ae2e7cd6-d11d-4d4a-927c-c143b999fef7'
+  CodeStarConnectionArn: 'arn:aws:codeconnections:ap-south-1:794038256512:connection/ae2e7cd6-d11d-4d4a-927c-c143b999fef7'
   GitHubRepo: 'girish-habile/demo-app'
   GitHubBranch: 'main'
   InstanceId: 'i-0d743efb4bd0e80c0'
