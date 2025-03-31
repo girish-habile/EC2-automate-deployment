@@ -31,9 +31,9 @@ Parameters:
     Type: String
     Description: ARN of the existing CodeStar Connection to GitHub
   
-  InstanceId:
+  InstanceName:
     Type: String
-    Description: ID of the EC2 instance to deploy to
+    Description: Name of the EC2 instance to deploy to
 
 Resources:
   # CodeDeploy Service Role
@@ -67,6 +67,10 @@ Resources:
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
       DeploymentGroupName: !Sub ${ApplicationName}-${TagEnvironment}-deploygroup
       DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      Ec2TagFilters:
+      - Key: Name
+        Type: KEY_AND_VALUE
+        Value: !Ref InstanceName
       Ec2TagSet:
         Ec2TagSetList:
           - Ec2TagGroup:
@@ -76,10 +80,7 @@ Resources:
               - Key: APPLICATION_USER
                 Value: !Ref ApplicationUser
                 Type: KEY_AND_VALUE
-      Ec2InstanceTagFilters:
-        - Key: InstanceIds
-          Type: KEY_AND_VALUE
-          Value: !Ref InstanceId
+      
   
   # CodePipeline Service Role
   CodePipelineServiceRole:
