@@ -1,0 +1,10 @@
+template-file-path: codepipeline-setup.yml
+parameters:
+  ApplicationName: 'demo-app'
+  ApplicationUser: 'demo-user'
+  TagEnvironment: 'dev'
+  GitHubConnectionArn: 'arn:aws:codestar-connections:region:account-id:connection/connection-id'
+  GitHubRepo: 'girish-habile/demo-app'
+  GitHubBranch: 'main'
+  InstanceId: 't2.micro'
+tags: {}

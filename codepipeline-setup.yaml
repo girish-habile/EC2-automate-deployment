@@ -1,0 +1,183 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for CI/CD pipeline for Node.js application using CodeDeploy'
+
+Parameters:
+  ApplicationName:
+    Type: String
+    Description: Name of the Node.js application
+    Default: nodejs-app
+
+  ApplicationUser:
+    Type: String
+    Description: User to run the Node.js application
+    Default: nodejs-user
+
+  TagEnvironment:
+    Type: String
+    Description: Environment tag 
+    Default: dev
+    AllowedValues: [ "development", "production", "staging", "dev", "prod" ]
+  
+  GitHubRepo:
+    Type: String
+    Description: GitHub repository name
+  
+  GitHubBranch:
+    Type: String
+    Description: GitHub branch name
+    Default: main
+  
+  CodeStarConnectionArn:
+    Type: String
+    Description: ARN of the existing CodeStar Connection to GitHub
+  
+  InstanceId:
+    Type: String
+    Description: ID of the EC2 instance to deploy to
+
+Resources:
+  # CodeDeploy Service Role
+  CodeDeployServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codedeploy.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
+      Path: /
+      RoleName: !Sub ${ApplicationName}-${TagEnvironment}-CodeDeployRole
+  
+  # CodeDeploy Application
+  CodeDeployApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: !Sub ${ApplicationName}-${TagEnvironment}-app
+      ComputePlatform: Server
+  
+  # CodeDeploy Deployment Group
+  CodeDeployDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref CodeDeployApplication
+      ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
+      DeploymentGroupName: !Sub ${ApplicationName}-${TagEnvironment}-deploygroup
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      Ec2TagSet:
+        Ec2TagSetList:
+          - Ec2TagGroup:
+              - Key: APPLICATION_NAME
+                Value: !Ref ApplicationName
+                Type: KEY_AND_VALUE
+              - Key: APPLICATION_USER
+                Value: !Ref ApplicationUser
+                Type: KEY_AND_VALUE
+      Ec2InstanceTagFilters:
+        - Key: InstanceIds
+          Type: KEY_AND_VALUE
+          Value: !Ref InstanceId
+  
+  # CodePipeline Service Role
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSCodeStarFullAccess
+      Policies:
+        - PolicyName: CodePipelineAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - codedeploy:*
+                  - codestar-connections:UseConnection
+                Resource: '*'
+      RoleName: !Sub ${ApplicationName}-${TagEnvironment}-CodePipelineRole
+  
+  # Artifact S3 Bucket
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ApplicationName}-${TagEnvironment}-artifacts
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${ApplicationName}-${TagEnvironment}-artifacts
+        - Key: Environment
+          Value: !Ref TagEnvironment
+  
+  # CodePipeline
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub ${ApplicationName}-${TagEnvironment}-pipeline
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: '1'
+              Configuration:
+                ConnectionArn: !Ref CodeStarConnectionArn
+                FullRepositoryId: !Ref GitHubRepo
+                BranchName: !Ref GitHubBranch
+                OutputArtifactFormat: 'CODE_ZIP'
+              OutputArtifacts:
+                - Name: SourceCode
+        - Name: Deploy
+          Actions:
+            - Name: DeployToEC2
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CodeDeploy
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref CodeDeployApplication
+                DeploymentGroupName: !Ref CodeDeployDeploymentGroup
+                EnvironmentVariables: !Sub |
+                  {
+                    "APPLICATION_NAME": "${ApplicationName}",
+                    "APPLICATION_USER": "${ApplicationUser}"
+                  }
+              InputArtifacts:
+                - Name: SourceCode
+
+Outputs:
+  CodeDeployApplicationName:
+    Description: Name of the CodeDeploy application
+    Value: !Ref CodeDeployApplication
+  
+  CodeDeployDeploymentGroupName:
+    Description: Name of the CodeDeploy deployment group
+    Value: !Ref CodeDeployDeploymentGroup
+  
+  CodePipelineName:
+    Description: Name of the CodePipeline
+    Value: !Ref CodePipeline
