@@ -67,13 +67,12 @@ Resources:
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
       DeploymentGroupName: !Sub ${ApplicationName}-${TagEnvironment}-deploygroup
       DeploymentConfigName: CodeDeployDefault.AllAtOnce
-      Ec2TagFilters:
-      - Key: Name
-        Type: KEY_AND_VALUE
-        Value: !Ref InstanceName
       Ec2TagSet:
         Ec2TagSetList:
           - Ec2TagGroup:
+              - Key: Name
+                Value: !Ref InstanceName
+                Type: KEY_AND_VALUE
               - Key: APPLICATION_NAME
                 Value: !Ref ApplicationName
                 Type: KEY_AND_VALUE
