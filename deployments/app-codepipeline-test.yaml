@@ -1,4 +1,4 @@
-template-file-path: codepipeline-setup.yml
+template-file-path: codepipeline-setup.yaml
 parameters:
   ApplicationName: 'demo-app'
   ApplicationUser: 'demo-user'
