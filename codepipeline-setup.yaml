@@ -235,7 +235,7 @@ Resources:
                 ApplicationName: !Ref CodeDeployApplication
                 DeploymentGroupName: !Ref CodeDeployDeploymentGroup
               InputArtifacts:
-                - Name: SourceCode
+                - Name: BuildOutput
 
 Outputs:
   CodeDeployApplicationName:
