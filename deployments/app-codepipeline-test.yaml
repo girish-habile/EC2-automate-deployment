@@ -1,7 +1,7 @@
 template-file-path: codepipeline-setup.yaml
 parameters:
   ApplicationName: 'demo-app'
-  DeploymentUser: 'demo-user'
+  DeploymentUser: 'demouser'
   DeploymentFolder: '/srv/demoapp/'
   TagEnvironment: 'dev'
   CodeStarConnectionArn: 'arn:aws:codeconnections:ap-south-1:794038256512:connection/ae2e7cd6-d11d-4d4a-927c-c143b999fef7'
