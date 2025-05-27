@@ -109,7 +109,7 @@ Resources:
                   - s3:*
                   - codedeploy:*
                   - codestar-connections:UseConnection
-                  - codebuld:*
+                  - codebuild:*
                 Resource: '*'
       RoleName: !Sub ${ApplicationName}-${TagEnvironment}-CodePipelineRole
   
