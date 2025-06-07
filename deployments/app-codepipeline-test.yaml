@@ -3,6 +3,7 @@ parameters:
   ApplicationName: 'demo-app'
   DeploymentUser: 'demouser'
   DeploymentFolder: '/srv/demoapp/'
+  ProcessFile: 'process-prod.json'
   TagEnvironment: 'dev'
   CodeStarConnectionArn: 'arn:aws:codeconnections:ap-south-1:794038256512:connection/ae2e7cd6-d11d-4d4a-927c-c143b999fef7'
   GitHubRepo: 'girish-habile/demo-app'

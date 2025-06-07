@@ -17,6 +17,11 @@ Parameters:
     Default: "demouser"
     Description: "User that will own the deployed files"
 
+  ProcessFile:
+    Type: String
+    Default: "process-staging.json"
+    Description: "User that will own the deployed files"
+
   TagEnvironment:
     Type: String
     Description: Environment tag 
@@ -171,6 +176,8 @@ Resources:
             Value: !Ref DeploymentFolder
           - Name: DeploymentUser
             Value: !Ref DeploymentUser
+          - Name: ProcessFile
+            Value: !Ref ProcessFile
       Source:
         Type: CODEPIPELINE
       LogsConfig:
